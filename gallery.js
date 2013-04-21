@@ -41,6 +41,7 @@
 
         updatePanel = function (data) {
             largeImage.prop('src', data.srcLarge);
+            title.text(data.title);
             description.text(data.description);
         },
 
@@ -108,10 +109,16 @@
          * Creates large image view.
          */
         buildPanel = function () {
+            var descriptionContainer;
+
             addContainer(panelId, galleryContainer);
+
             largeImage = buildLargeImage();
-            title = addContainer('title', panelId, 'h3');
-            description = addContainer('description', panelId, 'p');
+
+            descriptionContainer = addContainer('description-container', panelId);
+
+            title = addContainer('title', descriptionContainer[0].id, 'h3');
+            description = addContainer('description', descriptionContainer[0].id, 'p');
         },
 
         /**
