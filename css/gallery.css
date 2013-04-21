@@ -1,6 +1,8 @@
 #gallery-wrapper {
-    width: 922px;
+    width: 960px;
+    height: 427px;
     margin 0 auto;
+    overflow: hidden;
 }
 
 #gallery-container {
@@ -14,8 +16,7 @@
 
 #largeImage,
 #galleryPanel {
-    height: 500px;
-    width: 600px;
+
 }
 
 #largeImage {
@@ -23,22 +24,29 @@
 }
 
 #description {
-    margin: 320px 0 0 600px;
+    margin: 223px 0 0 490px;
     padding: 5px;
 }
 
 #gallery-panel {
+    width: 100%;
     top: 0;
     left: 0;
 }
 
 #gallery-thumbs {
-    width: 320px;
+    width: 484px;
     top: 0;
     right: 0;
+    text-align: right;
 }
 
 .thumb {
-    padding: 0 3px;
+    margin: 0;
+    padding: 0 0 0 1px;
     cursor: pointer;
+}
+
+.view {
+    display: none;
 }

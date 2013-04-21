@@ -3,26 +3,50 @@
 (function ($) {
     var galleryContainer    = 'gallery-container',
         panelId             = 'gallery-panel',
-        imageFolder         = 'images/',
-        imageFormat         = '.jpg',
+        limit               = 8,
+
+        largeImage,
+        description,
 
         // create the promise for loaded image data
-        imagesLoading = $.getJSON('data.json'),
+        imagesData = [],
 
-        buildSrc = function (imgName) {
-            return imageFolder + imgName + imageFormat;
+        getViewItems = function () {
+            var container = $('#' + galleryContainer),
+                viewId = container.data('viewid');
+
+            limit = container.data('limit') || limit;
+            return $('.' + viewId + '-item');
         },
 
-        updatePanel = function (src, description) {
-            $('#largeImage').prop('src', src);
-            $('#description').text(description);
+        scrapeViewsData = function () {
+            var items = getViewItems(),
+                limiter = limit;
+
+            items.each(function (key, item) {
+                if (!limiter--) {
+                    return false;
+                }
+                $item = $(item);
+                imagesData.push({
+                    'title'      : $item.find('.gallery-image-title').text(),
+                    'srcLarge'   : $item.find('.gallery-image-large img').prop('src'),
+                    'srcThumb'   : $item.find('.gallery-image-thumb img').prop('src'),
+                    'description': $item.find('.gallery-image-description p').text()
+                });
+            });
+
+            handleImageData(imagesData);
+        },
+
+        updatePanel = function (data) {
+            largeImage.prop('src', data.srcLarge);
+            description.text(data.description);
         },
 
         onClickThumb = function (e) {
-            var data = $(e.target).data('imageData'),
-                src = buildSrc(data.image);
-
-            updatePanel(src, data.description);
+            var data = $(e.target).data('imageData');
+            updatePanel(data);
         },
 
         /**
@@ -42,8 +66,7 @@
          */
         addThumbnail = function (key, data) {
             var thumb = makeImage('thumb', {
-                'id': data.image,
-                'src': buildSrc(data.image + '_thumb'),
+                'src': data.srcThumb,
                 'alt': data.description
             }).data('imageData', data);
 
@@ -54,16 +77,17 @@
             $(imageData).each(addThumbnail);
         },
 
-        buildLargeImage = function (imageData) {
-            makeImage('largeImage', {
+        buildLargeImage = function () {
+            var image = makeImage('largeImage', {
                 'id': 'largeImage'
-            }).prependTo('#' + panelId);
+            });
 
-            updatePanel(buildSrc(imageData.image), imageData.description);
+            image.prependTo('#' + panelId);
+            return image;
         },
 
         handleImageData = function (imagesData) {
-            buildLargeImage(imagesData[0]);
+            updatePanel(imagesData[0]);
             addThumbnails(imagesData);
         }
 
@@ -73,7 +97,9 @@
          * @param {string} container Id of the container to append newly created element to.
          */
         addContainer = function (id ,container) {
-            $('<div>').prop('id', id).appendTo('#' + container);
+            var newElement = $('<div>').prop('id', id);
+            newElement.appendTo('#' + container);
+            return newElement;
         },
 
         /**
@@ -81,7 +107,8 @@
          */
         buildPanel = function () {
             addContainer(panelId, galleryContainer);
-            addContainer('description', panelId)
+            largeImage = buildLargeImage();
+            description = addContainer('description', panelId);
         },
 
         /**
@@ -100,12 +127,11 @@
         bindUI = function () {
             // handles clicks on the thumbs
             $('body').on('click','.thumb', onClickThumb);
-            // handles the loading of the image data
-            imagesLoading.success(handleImageData);
         };
 
     $(function () {
-        bindUI();
         createMarkup();
+        bindUI();
+        scrapeViewsData();
     });
 }(jQuery));
