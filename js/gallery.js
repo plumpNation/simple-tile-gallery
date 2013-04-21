@@ -16,6 +16,7 @@
                 viewId = container.data('viewid');
 
             limit = container.data('limit') || limit;
+            limit = parseInt(limit, 10);
             return $('.' + viewId + '-item');
         },
 
@@ -41,6 +42,7 @@
 
         updatePanel = function (data) {
             largeImage.prop('src', data.srcLarge);
+            title.text(data.title);
             description.text(data.description);
         },
 
@@ -96,8 +98,10 @@
          * @param {string} id        Id of the newly created element.
          * @param {string} container Id of the container to append newly created element to.
          */
-        addContainer = function (id ,container) {
-            var newElement = $('<div>').prop('id', id);
+        addContainer = function (id ,container, type) {
+            var elementType = type || 'div',
+                newElement = $('<' + elementType + '>').prop('id', id);
+
             newElement.appendTo('#' + container);
             return newElement;
         },
@@ -106,9 +110,16 @@
          * Creates large image view.
          */
         buildPanel = function () {
+            var descriptionContainer;
+
             addContainer(panelId, galleryContainer);
+
             largeImage = buildLargeImage();
-            description = addContainer('description', panelId);
+
+            descriptionContainer = addContainer('description-container', panelId);
+
+            title = addContainer('title', descriptionContainer[0].id, 'h3');
+            description = addContainer('description', descriptionContainer[0].id, 'p');
         },
 
         /**
