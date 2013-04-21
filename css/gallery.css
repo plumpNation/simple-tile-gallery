@@ -1,4 +1,44 @@
+#gallery-wrapper {
+    width: 922px;
+    margin 0 auto;
+}
+
+#gallery-container {
+    position: relative;
+}
+
 #gallery-panel,
 #gallery-thumbs {
-    display: inline;
+    position: absolute;
+}
+
+#largeImage,
+#galleryPanel {
+    height: 500px;
+    width: 600px;
+}
+
+#largeImage {
+    float: left;
+}
+
+#description {
+    margin: 320px 0 0 600px;
+    padding: 5px;
+}
+
+#gallery-panel {
+    top: 0;
+    left: 0;
+}
+
+#gallery-thumbs {
+    width: 320px;
+    top: 0;
+    right: 0;
+}
+
+.thumb {
+    padding: 0 3px;
+    cursor: pointer;
 }
