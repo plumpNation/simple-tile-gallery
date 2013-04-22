@@ -1,54 +1,41 @@
 /*jslint browser:true */
 /*global jQuery */
 (function ($) {
+    'use strict';
+
     var galleryContainer    = 'gallery-container',
         panelId             = 'gallery-panel',
         limit               = 8,
 
+        title,
         largeImage,
         description,
+
+        thumbs,
+        container,
 
         // create the promise for loaded image data
         imagesData = [],
 
-        getViewItems = function () {
-            var container = $('#' + galleryContainer),
-                viewId = container.data('viewid');
-
+        getLimit = function () {
             limit = container.data('limit') || limit;
-            limit = parseInt(limit, 10);
+            return parseInt(limit, 10);
+        },
+
+        getViewItems = function () {
+            var viewId = container.data('viewid');
             return $('.' + viewId + '-item');
         },
 
-        scrapeViewsData = function () {
-            var items = getViewItems(),
-                limiter = limit;
-
-            items.each(function (key, item) {
-                if (!limiter--) {
-                    return false;
-                }
-                $item = $(item);
-                imagesData.push({
-                    'title'      : $item.find('.gallery-image-title').text(),
-                    'srcLarge'   : $item.find('.gallery-image-large img').prop('src'),
-                    'srcThumb'   : $item.find('.gallery-image-thumb img').prop('src'),
-                    'description': $item.find('.gallery-image-description p').text()
-                });
-            });
-
-            handleImageData(imagesData);
-        },
-
         updatePanel = function (data) {
+            if (!data) {
+                console.info('No data for gallery');
+                return;
+            }
+
             largeImage.prop('src', data.srcLarge);
             title.text(data.title);
             description.text(data.description);
-        },
-
-        onClickThumb = function (e) {
-            var data = $(e.target).data('imageData');
-            updatePanel(data);
         },
 
         /**
@@ -72,11 +59,52 @@
                 'alt': data.description
             }).data('imageData', data);
 
-            thumb.appendTo('#gallery-thumbs');
+            thumb.appendTo(thumbs);
         },
+
 
         addThumbnails = function (imageData) {
             $(imageData).each(addThumbnail);
+        },
+
+        handleImageData = function (imagesData) {
+            updatePanel(imagesData[0]);
+            addThumbnails(imagesData);
+        },
+
+        scrapeViewsData = function () {
+            var items = getViewItems(),
+                limiter = getLimit();
+
+            if (!items.length) {
+                console.info('No views items for gallery');
+                return;
+            }
+
+            items.each(function (key, item) {
+                var $item;
+
+                if (!limiter) {
+                    return false;
+                }
+
+                limiter -= 1;
+                $item = $(item);
+
+                imagesData.push({
+                    'title'      : $item.find('.gallery-image-title').text(),
+                    'srcLarge'   : $item.find('.gallery-image-large img').prop('src'),
+                    'srcThumb'   : $item.find('.gallery-image-thumb img').prop('src'),
+                    'description': $item.find('.gallery-image-description p').text()
+                });
+            });
+
+            handleImageData(imagesData);
+        },
+
+        onClickThumb = function (e) {
+            var data = $(e.target).data('imageData');
+            updatePanel(data);
         },
 
         buildLargeImage = function () {
@@ -88,17 +116,12 @@
             return image;
         },
 
-        handleImageData = function (imagesData) {
-            updatePanel(imagesData[0]);
-            addThumbnails(imagesData);
-        }
-
         /**
          * Convenience function to build a div and append to an element by id.
          * @param {string} id        Id of the newly created element.
          * @param {string} container Id of the container to append newly created element to.
          */
-        addContainer = function (id ,container, type) {
+        addContainer = function (id, container, type) {
             var elementType = type || 'div',
                 newElement = $('<' + elementType + '>').prop('id', id);
 
@@ -112,7 +135,7 @@
         buildPanel = function () {
             var descriptionContainer;
 
-            addContainer(panelId, galleryContainer);
+            container = addContainer(panelId, galleryContainer);
 
             largeImage = buildLargeImage();
 
@@ -128,7 +151,7 @@
          */
         createMarkup = function () {
             buildPanel();
-            addContainer('gallery-thumbs', galleryContainer);
+            thumbs = addContainer('gallery-thumbs', galleryContainer);
         },
 
         /**
@@ -137,7 +160,7 @@
          */
         bindUI = function () {
             // handles clicks on the thumbs
-            $('body').on('click','.thumb', onClickThumb);
+            $('body').on('click', '.thumb', onClickThumb);
         };
 
     $(function () {
