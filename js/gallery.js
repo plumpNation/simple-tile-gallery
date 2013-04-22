@@ -15,6 +15,8 @@
         thumbs,
         container,
 
+        viewId,
+
         // create the promise for loaded image data
         imagesData = [],
 
@@ -24,8 +26,12 @@
         },
 
         getViewItems = function () {
-            var viewId = container.data('viewid');
-            return $('.' + viewId + '-item');
+            var viewDataId = container.data('viewid');
+
+            // Follows the convention 'view-id-your_id';
+            viewId = 'view-id-' + viewDataId.replace('-', '_');
+
+            return $('.' + viewDataId + '-item');
         },
 
         updatePanel = function (data) {
@@ -70,6 +76,7 @@
         handleImageData = function (imagesData) {
             updatePanel(imagesData[0]);
             addThumbnails(imagesData);
+
         },
 
         scrapeViewsData = function () {
@@ -106,11 +113,9 @@
                     'large'      : largeImage.clone(),
                     'description': $item.find('.gallery-image-description p').text()
                 });
-
-
             });
 
-            handleImageData(imagesData);
+            return imagesData;
         },
 
         onClickThumb = function (e) {
@@ -162,11 +167,21 @@
         bindUI = function () {
             // handles clicks on the thumbs
             $('body').on('click', '.thumb', onClickThumb);
+        },
+
+        removeViewsMarkup = function () {
+            $('#' + viewId).remove();
         };
 
     $(function () {
+        var imagesData;
+
         createMarkup();
         bindUI();
-        scrapeViewsData();
+
+        imagesData = scrapeViewsData();
+        handleImageData(imagesData);
+
+        removeViewsMarkup();
     });
 }(jQuery));
