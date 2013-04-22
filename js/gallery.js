@@ -76,7 +76,15 @@
         handleImageData = function (imagesData) {
             updatePanel(imagesData[0]);
             addThumbnails(imagesData);
+        },
 
+        onClickLargeImage = function (originalImage) {
+            return function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                originalImage.trigger('click');
+                return false;
+            };
         },
 
         scrapeViewsData = function () {
@@ -91,6 +99,7 @@
             items.each(function (key, item) {
                 var $item,
                     largeImage,
+                    largeImageClone,
                     largeImageContainer;
 
                 if (!limiter) {
@@ -105,12 +114,19 @@
 
                 if (largeImageContainer.is('a')) {
                     largeImage = largeImageContainer;
+
+                    // Remove the href and hook up to transfer the click event
+                    // to the original image.
+                    largeImageClone = largeImage.clone()
+                        .attr('href', '#')
+                        .on('click', onClickLargeImage(largeImage));
                 }
 
                 imagesData.push({
                     'title'      : $item.find('.gallery-image-title').text(),
                     'thumb'      : $item.find('.gallery-image-thumb img').clone(),
-                    'large'      : largeImage.clone(),
+                    'large'      : largeImageClone,
+                    'original'   : largeImage,
                     'description': $item.find('.gallery-image-description p').text()
                 });
             });
@@ -167,10 +183,6 @@
         bindUI = function () {
             // handles clicks on the thumbs
             $('body').on('click', '.thumb', onClickThumb);
-        },
-
-        removeViewsMarkup = function () {
-            $('#' + viewId).remove();
         };
 
     $(function () {
@@ -181,7 +193,5 @@
 
         imagesData = scrapeViewsData();
         handleImageData(imagesData);
-
-        removeViewsMarkup();
     });
 }(jQuery));
