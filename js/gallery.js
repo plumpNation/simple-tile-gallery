@@ -135,7 +135,7 @@
         buildPanel = function () {
             var descriptionContainer;
 
-            container = addContainer(panelId, galleryContainer);
+            addContainer(panelId, galleryContainer);
 
             largeImage = buildLargeImage();
 
@@ -151,6 +151,7 @@
          */
         createMarkup = function () {
             buildPanel();
+            container = $('#' + galleryContainer);
             thumbs = addContainer('gallery-thumbs', galleryContainer);
         },
 
