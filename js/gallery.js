@@ -7,6 +7,7 @@
         panelId             = 'gallery-panel',
         limit               = 8,
 
+        panel,
         title,
         largeImage,
         description,
@@ -33,19 +34,18 @@
                 return;
             }
 
-            largeImage.prop('src', data.srcLarge);
+            data.large.prop('id', 'largeImage');
+
+            if (!largeImage) {
+                panel.prepend(data.large);
+
+            } else {
+                largeImage.replaceWith(data.large);
+            }
+
+
             title.text(data.title);
             description.text(data.description);
-        },
-
-        /**
-         * Create image tab with attributes and class/id.
-         * @param  {string} type    Will be used as the image class
-         * @param  {object} options Will be used to set attributes including id.
-         * @return {jQuery img tag} jQuery wrapped img tag
-         */
-        makeImage = function (type, options) {
-            return $('<img>').prop(options).addClass(type);
         },
 
         /**
@@ -54,10 +54,10 @@
          * @param {object} data The actual data, containing image name and description etc
          */
         addThumbnail = function (key, data) {
-            var thumb = makeImage('thumb', {
-                'src': data.srcThumb,
-                'alt': data.description
-            }).data('imageData', data);
+            var thumb = data.thumb
+                .addClass('thumb')
+                .attr('alt', data.description)
+                .data('imageData', data);
 
             thumb.appendTo(thumbs);
         },
@@ -82,7 +82,9 @@
             }
 
             items.each(function (key, item) {
-                var $item;
+                var $item,
+                    largeImage,
+                    largeImageContainer;
 
                 if (!limiter) {
                     return false;
@@ -91,12 +93,21 @@
                 limiter -= 1;
                 $item = $(item);
 
+                largeImage = $item.find('.gallery-image-large img');
+                largeImageContainer = largeImage.parent();
+
+                if (largeImageContainer.is('a')) {
+                    largeImage = largeImageContainer;
+                }
+
                 imagesData.push({
                     'title'      : $item.find('.gallery-image-title').text(),
-                    'srcLarge'   : $item.find('.gallery-image-large img').prop('src'),
-                    'srcThumb'   : $item.find('.gallery-image-thumb img').prop('src'),
+                    'thumb'      : $item.find('.gallery-image-thumb img').clone(),
+                    'large'      : largeImage.clone(),
                     'description': $item.find('.gallery-image-description p').text()
                 });
+
+
             });
 
             handleImageData(imagesData);
@@ -105,15 +116,6 @@
         onClickThumb = function (e) {
             var data = $(e.target).data('imageData');
             updatePanel(data);
-        },
-
-        buildLargeImage = function () {
-            var image = makeImage('largeImage', {
-                'id': 'largeImage'
-            });
-
-            image.prependTo('#' + panelId);
-            return image;
         },
 
         /**
@@ -135,9 +137,7 @@
         buildPanel = function () {
             var descriptionContainer;
 
-            addContainer(panelId, galleryContainer);
-
-            largeImage = buildLargeImage();
+            panel = addContainer(panelId, galleryContainer);
 
             descriptionContainer = addContainer('description-container', panelId);
 
