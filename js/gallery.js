@@ -49,9 +49,13 @@
                 largeImage.replaceWith(data.large);
             }
 
+            if (data.title) {
+                title.text(data.title);
+            }
 
-            title.text(data.title);
-            description.text(data.description);
+            if (data.description) {
+                description.text(data.description);
+            }
         },
 
         /**
@@ -62,8 +66,11 @@
         addThumbnail = function (key, data) {
             var thumb = data.thumb
                 .addClass('thumb')
-                .attr('alt', data.description)
                 .data('imageData', data);
+
+            if (data.description) {
+                thumb.attr('alt', data.description)
+            }
 
             thumb.appendTo(thumbs);
         },
@@ -93,14 +100,15 @@
 
             if (!items.length) {
                 console.info('No views items for gallery');
-                return;
+                return false;
             }
 
             items.each(function (key, item) {
                 var $item,
                     largeImage,
                     largeImageClone,
-                    largeImageContainer;
+                    largeImageContainer,
+                    descriptionContainer;
 
                 if (!limiter) {
                     return false;
@@ -122,13 +130,18 @@
                         .on('click', onClickLargeImage(largeImage));
                 }
 
-                imagesData.push({
+                imagesData[key] = {
                     'title'      : $item.find('.gallery-image-title').text(),
                     'thumb'      : $item.find('.gallery-image-thumb img').clone(),
                     'large'      : largeImageClone,
-                    'original'   : largeImage,
-                    'description': $item.find('.gallery-image-description p').text()
-                });
+                    'original'   : largeImage
+                };
+
+                descriptionContainer = $item.find('.gallery-image-description p');
+
+                if (descriptionContainer.length) {
+                    imagesData[key].description = descriptionContainer.text();
+                }
             });
 
             return imagesData;
@@ -192,6 +205,9 @@
         bindUI();
 
         imagesData = scrapeViewsData();
-        handleImageData(imagesData);
+
+        if (imagesData) {
+            handleImageData(imagesData);
+        }
     });
 }(jQuery));
