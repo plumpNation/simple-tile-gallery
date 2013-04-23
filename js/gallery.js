@@ -43,7 +43,7 @@
             data.large.prop('id', 'largeImage');
 
             if (!largeImage) {
-                largeImage = panel.prepend(data.large);
+                largeImage = data.large.prependTo(panel);
 
             } else {
                 largeImage.replaceWith(data.large);
