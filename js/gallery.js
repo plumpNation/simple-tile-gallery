@@ -40,15 +40,18 @@
                 return;
             }
 
+            if (data.large === largeImage) {
+                console.log('same');
+                return;
+            }
+
             data.large.prop('id', 'largeImage');
 
-            if (!largeImage) {
-                largeImage = data.large.prependTo(panel);
-
-            } else {
-                largeImage.replaceWith(data.large);
-                largeImage = data.large;
+            if (largeImage) {
+                largeImage.remove();
             }
+
+            largeImage = data.large.prependTo(panel);
 
             if (data.title) {
                 title.text(data.title);
