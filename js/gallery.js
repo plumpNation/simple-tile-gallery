@@ -43,10 +43,11 @@
             data.large.prop('id', 'largeImage');
 
             if (!largeImage) {
-                panel.prepend(data.large);
+                largeImage = panel.prepend(data.large);
 
             } else {
                 largeImage.replaceWith(data.large);
+                largeImage = data.large;
             }
 
             if (data.title) {
