@@ -9,7 +9,6 @@
 
         panel,
         title,
-        largeImage,
         description,
 
         thumbs,
@@ -35,23 +34,27 @@
         },
 
         updatePanel = function (data) {
+            var currentImage;
+
             if (!data) {
                 console.info('No data for gallery');
                 return;
             }
 
-            if (data.large === largeImage) {
-                console.log('same');
-                return;
+            currentImage = $('#largeImage');
+
+            data.image.prop('id', 'largeImage');
+
+            if (currentImage.length) {
+                currentImage.remove();
             }
 
-            data.large.prop('id', 'largeImage');
-
-            if (largeImage) {
-                largeImage.remove();
-            }
-
-            largeImage = data.large.prependTo(panel);
+            // Remove the href and hook up to transfer the click event
+            // to the original image.
+            data.image.clone()
+                .attr('href', '#')
+                .on('click', onClickLargeImage(data.image))
+                .prependTo(panel);
 
             if (data.title) {
                 title.text(data.title);
@@ -126,19 +129,12 @@
 
                 if (largeImageContainer.is('a')) {
                     largeImage = largeImageContainer;
-
-                    // Remove the href and hook up to transfer the click event
-                    // to the original image.
-                    largeImageClone = largeImage.clone()
-                        .attr('href', '#')
-                        .on('click', onClickLargeImage(largeImage));
                 }
 
                 imagesData[key] = {
-                    'title'      : $item.find('.gallery-image-title').text(),
-                    'thumb'      : $item.find('.gallery-image-thumb img').clone(),
-                    'large'      : largeImageClone,
-                    'original'   : largeImage
+                    'title': $item.find('.gallery-image-title').text(),
+                    'thumb': $item.find('.gallery-image-thumb img').clone(),
+                    'image': largeImage
                 };
 
                 descriptionContainer = $item.find('.gallery-image-description p');
